@@ -14,6 +14,9 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+console.log("OPENAI KEY EXISTS:", !!process.env.OPENAI_API_KEY);
+console.log("ENV KEYS:", Object.keys(process.env).filter(k => k.includes("OPENAI")));
+
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
