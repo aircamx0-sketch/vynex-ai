@@ -145,7 +145,39 @@ Return ONLY JSON:
     res.status(500).json({ error: "Failed to generate ad" });
   }
 });
+app.get("/", (req, res) => {
+  res.send("Vynex AI backend is running");
+});
 
+app.post("/enhance-pro", upload.array("photos", 20), async (req, res) => {
+  try {
+    const files = req.files || [];
+
+    if (!files.length) {
+      return res.status(400).json({
+        success: false,
+        error: "No photos uploaded"
+      });
+    }
+
+    const images = files.map((file) => {
+      const base64 = file.buffer.toString("base64");
+      return `data:${file.mimetype};base64,${base64}`;
+    });
+
+    res.json({
+      success: true,
+      images
+    });
+
+  } catch (err) {
+    console.error("Enhance error:", err);
+    res.status(500).json({
+      success: false,
+      error: "Enhancement failed"
+    });
+  }
+});
 app.listen(process.env.PORT || 3000, () => {
   console.log(`Server running on port ${process.env.PORT || 3000}`);
 });
