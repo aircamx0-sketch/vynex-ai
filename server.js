@@ -36,13 +36,38 @@ app.get("/", (req, res) => {
 // PHOTO ENHANCE ROUTE
 app.post("/enhance-pro", upload.array("photos", 20), async (req, res) => {
   try {
+    console.log("Enhance route hit");
+
     const files = req.files || [];
+    console.log("Files received:", files.length);
 
     if (!files.length) {
       return res.status(400).json({
         success: false,
         error: "No photos uploaded"
       });
+    }
+
+    const images = files.map((file) => {
+      const base64 = file.buffer.toString("base64");
+      return `data:${file.mimetype};base64,${base64}`;
+    });
+
+    console.log("Sending images back:", images.length);
+
+    return res.json({
+      success: true,
+      images
+    });
+
+  } catch (err) {
+    console.error("Enhance error:", err);
+    return res.status(500).json({
+      success: false,
+      error: err.message || "Enhancement failed"
+    });
+  }
+});
     }
 
     const images = files.map((file) => {
