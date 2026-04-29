@@ -28,12 +28,10 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-// TEST ROUTE
 app.get("/", (req, res) => {
   res.send("Vynex AI backend is running");
 });
 
-// PHOTO ENHANCE ROUTE
 app.post("/enhance-pro", upload.array("photos", 20), async (req, res) => {
   try {
     console.log("Enhance route hit");
@@ -68,28 +66,7 @@ app.post("/enhance-pro", upload.array("photos", 20), async (req, res) => {
     });
   }
 });
-    }
 
-    const images = files.map((file) => {
-      const base64 = file.buffer.toString("base64");
-      return `data:${file.mimetype};base64,${base64}`;
-    });
-
-    res.json({
-      success: true,
-      images
-    });
-
-  } catch (err) {
-    console.error("Enhance error:", err);
-    res.status(500).json({
-      success: false,
-      error: "Enhancement failed"
-    });
-  }
-});
-
-// AD GENERATOR ROUTE
 app.post("/generate-ad", upload.single("image"), async (req, res) => {
   try {
     const { adType, location, address, price, audience, tone, details, email } = req.body;
@@ -119,7 +96,7 @@ Return ONLY JSON:
       input: prompt
     });
 
-    let cleanText = response.output_text
+    const cleanText = response.output_text
       .replace(/```json/g, "")
       .replace(/```/g, "")
       .trim();
@@ -159,7 +136,7 @@ Return ONLY JSON:
       });
     }
 
-    res.json({
+    return res.json({
       ...ad,
       imageUrl,
       emailSent: !!email
@@ -167,7 +144,9 @@ Return ONLY JSON:
 
   } catch (err) {
     console.error("Generate ad error:", err);
-    res.status(500).json({ error: "Failed to generate ad" });
+    return res.status(500).json({
+      error: "Failed to generate ad"
+    });
   }
 });
 
