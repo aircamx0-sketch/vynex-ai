@@ -11,11 +11,10 @@ const app = express();
 const upload = multer({ storage: multer.memoryStorage() });
 
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
 console.log("OPENAI KEY EXISTS:", !!process.env.OPENAI_API_KEY);
-console.log("ENV KEYS:", Object.keys(process.env).filter(k => k.includes("OPENAI")));
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
@@ -29,6 +28,43 @@ const transporter = nodemailer.createTransport({
   }
 });
 
+// TEST ROUTE
+app.get("/", (req, res) => {
+  res.send("Vynex AI backend is running");
+});
+
+// PHOTO ENHANCE ROUTE
+app.post("/enhance-pro", upload.array("photos"), async (req, res) => {
+  try {
+    const files = req.files || [];
+
+    if (!files.length) {
+      return res.status(400).json({
+        success: false,
+        error: "No photos uploaded"
+      });
+    }
+
+    const images = files.map((file) => {
+      const base64 = file.buffer.toString("base64");
+      return `data:${file.mimetype};base64,${base64}`;
+    });
+
+    res.json({
+      success: true,
+      images
+    });
+
+  } catch (err) {
+    console.error("Enhance error:", err);
+    res.status(500).json({
+      success: false,
+      error: "Enhancement failed"
+    });
+  }
+});
+
+// AD GENERATOR ROUTE
 app.post("/generate-ad", upload.single("image"), async (req, res) => {
   try {
     const { adType, location, address, price, audience, tone, details, email } = req.body;
@@ -105,7 +141,7 @@ Return ONLY JSON:
     });
 
   } catch (err) {
-    console.error(err);
+    console.error("Generate ad error:", err);
     res.status(500).json({ error: "Failed to generate ad" });
   }
 });
